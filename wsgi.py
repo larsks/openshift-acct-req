@@ -82,7 +82,7 @@ def get_moc_rolebindings(project_name, user_name, role):
                 }
             ),
             status=200,
-            mimetype="app/json",
+            mimetype="application/json",
         )
     return Response(
         response=json.dumps(
@@ -97,7 +97,7 @@ def get_moc_rolebindings(project_name, user_name, role):
             }
         ),
         status=404,
-        mimetype="app/json",
+        mimetype="application/json",
     )
 
 
@@ -136,12 +136,12 @@ def get_moc_project(project_uuid, user_name=None):
         return Response(
             response=json.dumps({"msg": "project exists (" + project_uuid + ")"}),
             status=200,
-            mimetype="app/json",
+            mimetype="application/json",
         )
     return Response(
         response=json.dumps({"msg": "project does not exist (" + project_uuid + ")"}),
         status=400,
-        mimetype="app/json",
+        mimetype="application/json",
     )
 
 
@@ -163,7 +163,7 @@ def create_moc_project(project_uuid, user_name=None):
                 }
             ),
             status=400,
-            mimetype="app/json",
+            mimetype="application/json",
         )
     if not exists_openshift_project(openshift_api, project_uuid):
         project_name = project_uuid
@@ -182,19 +182,19 @@ def create_moc_project(project_uuid, user_name=None):
             return Response(
                 response=json.dumps({"msg": "project created (" + project_uuid + ")"}),
                 status=200,
-                mimetype="app/json",
+                mimetype="application/json",
             )
         return Response(
             response=json.dumps(
                 {"msg": "project unabled to be created (" + project_uuid + ")"}
             ),
             status=400,
-            mimetype="app/json",
+            mimetype="application/json",
         )
     return Response(
         response=json.dumps({"msg": "project currently exist (" + project_uuid + ")"}),
         status=400,
-        mimetype="app/json",
+        mimetype="application/json",
     )
 
 
@@ -209,21 +209,21 @@ def delete_moc_project(project_uuid, user_name=None):
             return Response(
                 response=json.dumps({"msg": "project deleted (" + project_uuid + ")"}),
                 status=200,
-                mimetype="app/json",
+                mimetype="application/json",
             )
         return Response(
             response=json.dumps(
                 {"msg": "project unabled to be deleted (" + project_uuid + ")"}
             ),
             status=400,
-            mimetype="app/json",
+            mimetype="application/json",
         )
     return Response(
         response=json.dumps(
             {"msg": "unable to delete, project does not exist(" + project_uuid + ")"}
         ),
         status=400,
-        mimetype="app/json",
+        mimetype="application/json",
     )
 
 
@@ -236,12 +236,12 @@ def get_moc_user(user_name, full_name=None, id_provider="sso_auth", id_user=None
         return Response(
             response=json.dumps({"msg": "user (" + user_name + ") exists"}),
             status=200,
-            mimetype="app/json",
+            mimetype="application/json",
         )
     return Response(
         response=json.dumps({"msg": "user (" + user_name + ") does not exist"}),
         status=400,
-        mimetype="app/json",
+        mimetype="application/json",
     )
 
 
@@ -261,7 +261,7 @@ def create_moc_user(user_name, full_name=None, id_provider="sso_auth", id_user=N
                     {"msg": "unable to create openshift user (" + user_name + ") 1"}
                 ),
                 status=400,
-                mimetype="app/json",
+                mimetype="application/json",
             )
     else:
         user_exists = user_exists | 0x01
@@ -278,7 +278,7 @@ def create_moc_user(user_name, full_name=None, id_provider="sso_auth", id_user=N
                     {"msg": "unable to create openshift identity (" + id_provider + ")"}
                 ),
                 status=400,
-                mimetype="app/json",
+                mimetype="application/json",
             )
     else:
         user_exists = user_exists | 0x02
@@ -299,7 +299,7 @@ def create_moc_user(user_name, full_name=None, id_provider="sso_auth", id_user=N
                     }
                 ),
                 status=400,
-                mimetype="app/json",
+                mimetype="application/json",
             )
     else:
         user_exists = user_exists | 0x04
@@ -308,12 +308,12 @@ def create_moc_user(user_name, full_name=None, id_provider="sso_auth", id_user=N
         return Response(
             response=json.dumps({"msg": "user currently exists (" + user_name + ")"}),
             status=200,
-            mimetype="app/json",
+            mimetype="application/json",
         )
     return Response(
         response=json.dumps({"msg": "user created (" + user_name + ")"}),
         status=200,
-        mimetype="app/json",
+        mimetype="application/json",
     )
 
 
@@ -332,7 +332,7 @@ def delete_moc_user(user_name, full_name=None, id_provider="sso_auth", id_user=N
                     {"msg": "unable to delete User (" + user_name + ") 1"}
                 ),
                 status=400,
-                mimetype="app/json",
+                mimetype="application/json",
             )
     else:
         user_does_not_exist = 0x01
@@ -348,7 +348,7 @@ def delete_moc_user(user_name, full_name=None, id_provider="sso_auth", id_user=N
                     {"msg": "unable to delete identity (" + id_provider + ")"}
                 ),
                 status=400,
-                mimetype="app/json",
+                mimetype="application/json",
             )
     else:
         user_does_not_exist = user_does_not_exist | 0x02
@@ -359,12 +359,12 @@ def delete_moc_user(user_name, full_name=None, id_provider="sso_auth", id_user=N
                 {"msg": "user does not currently exist (" + user_name + ")"}
             ),
             status=200,
-            mimetype="app/json",
+            mimetype="application/json",
         )
     return Response(
         response=json.dumps({"msg": "user deleted (" + user_name + ")"}),
         status=200,
-        mimetype="app/json",
+        mimetype="application/json",
     )
 
 

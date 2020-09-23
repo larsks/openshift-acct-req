@@ -49,6 +49,18 @@ def verify_password(have_username, have_password):
         return username
 
 
+@app.route('/healthcheck')
+def healthcheck():
+    res = openshift_api.get('/')
+    healthy = res.status_code == 200
+
+    return Response(
+        response=json.dumps({'healthy': healthy}),
+        status=200 if healthy else 500,
+        mimetype='application/json',
+    )
+
+
 @app.route(
     "/users/<user_name>/projects/<project_name>/roles/<role>", methods=["GET"]
 )

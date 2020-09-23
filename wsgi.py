@@ -1,16 +1,8 @@
-import kubernetes
-import pprint
-import logging
-import requests
 import json
-import re
-import os
-from flask import Flask, redirect, url_for, request, Response
+import logging
+
+from flask import redirect, request, Response
 from flask_httpauth import HTTPBasicAuth
-
-# from flask_restful import reqparse
-
-import sys
 
 from openshift_api_wrapper import ApiWrapper
 from openshift_rolebindings import *
@@ -18,7 +10,8 @@ from openshift_project import *
 from openshift_identity import *
 from openshift_user import *
 
-application = Flask(__name__)
+from app import app
+
 auth = HTTPBasicAuth()
 serviceaccount = '/var/run/secrets/kubernetes.io/serviceaccount'
 
@@ -36,8 +29,8 @@ openshift_api = ApiWrapper(f'https://{openshift_url}',
 
 if __name__ != "__main__":
     gunicorn_logger = logging.getLogger("gunicorn.error")
-    application.logger.handlers = gunicorn_logger.handlers
-    application.logger.setLevel(gunicorn_logger.level)
+    app.logger.handlers = gunicorn_logger.handlers
+    app.logger.setLevel(gunicorn_logger.level)
 
 
 def get_token_and_url():
@@ -56,7 +49,7 @@ def verify_password(have_username, have_password):
         return username
 
 
-@application.route(
+@app.route(
     "/users/<user_name>/projects/<project_name>/roles/<role>", methods=["GET"]
 )
 # @auth.login_required
@@ -77,7 +70,7 @@ def get_moc_rolebindings(project_name, user_name, role):
                 }
             ),
             status=200,
-            mimetype="application/json",
+            mimetype="app/json",
         )
     return Response(
         response=json.dumps(
@@ -92,11 +85,11 @@ def get_moc_rolebindings(project_name, user_name, role):
             }
         ),
         status=404,
-        mimetype="application/json",
+        mimetype="app/json",
     )
 
 
-@application.route(
+@app.route(
     "/users/<user_name>/projects/<project_name>/roles/<role>", methods=["PUT"]
 )
 # @auth.login_required
@@ -109,7 +102,7 @@ def create_moc_rolebindings(project_name, user_name, role):
     return r
 
 
-@application.route(
+@app.route(
     "/users/<user_name>/projects/<project_name>/roles/<role>", methods=["DELETE"]
 )
 # @auth.login_required
@@ -122,8 +115,8 @@ def delete_moc_rolebindings(project_name, user_name, role):
     return r
 
 
-@application.route("/projects/<project_uuid>", methods=["GET"])
-@application.route("/projects/<project_uuid>/owner/<user_name>", methods=["GET"])
+@app.route("/projects/<project_uuid>", methods=["GET"])
+@app.route("/projects/<project_uuid>/owner/<user_name>", methods=["GET"])
 # @auth.login_required
 def get_moc_project(project_uuid, user_name=None):
     (token, openshift_url) = get_token_and_url()
@@ -131,17 +124,17 @@ def get_moc_project(project_uuid, user_name=None):
         return Response(
             response=json.dumps({"msg": "project exists (" + project_uuid + ")"}),
             status=200,
-            mimetype="application/json",
+            mimetype="app/json",
         )
     return Response(
         response=json.dumps({"msg": "project does not exist (" + project_uuid + ")"}),
         status=400,
-        mimetype="application/json",
+        mimetype="app/json",
     )
 
 
-@application.route("/projects/<project_uuid>", methods=["PUT"])
-@application.route("/projects/<project_uuid>/owner/<user_name>", methods=["PUT"])
+@app.route("/projects/<project_uuid>", methods=["PUT"])
+@app.route("/projects/<project_uuid>/owner/<user_name>", methods=["PUT"])
 # @auth.login_required
 def create_moc_project(project_uuid, user_name=None):
     (token, openshift_url) = get_token_and_url()
@@ -158,7 +151,7 @@ def create_moc_project(project_uuid, user_name=None):
                 }
             ),
             status=400,
-            mimetype="application/json",
+            mimetype="app/json",
         )
     if not exists_openshift_project(openshift_api, project_uuid):
         project_name = project_uuid
@@ -166,9 +159,9 @@ def create_moc_project(project_uuid, user_name=None):
             req_json = request.get_json(force=True)
             if "displayName" in req_json:
                 project_name = req_json["displayName"]
-            application.logger.debug("create project json: " + project_name)
+            app.logger.debug("create project json: " + project_name)
         else:
-            application.logger.debug("create project json: None")
+            app.logger.debug("create project json: None")
 
         r = create_openshift_project(
             openshift_api, project_uuid, project_name, user_name
@@ -177,24 +170,24 @@ def create_moc_project(project_uuid, user_name=None):
             return Response(
                 response=json.dumps({"msg": "project created (" + project_uuid + ")"}),
                 status=200,
-                mimetype="application/json",
+                mimetype="app/json",
             )
         return Response(
             response=json.dumps(
                 {"msg": "project unabled to be created (" + project_uuid + ")"}
             ),
             status=400,
-            mimetype="application/json",
+            mimetype="app/json",
         )
     return Response(
         response=json.dumps({"msg": "project currently exist (" + project_uuid + ")"}),
         status=400,
-        mimetype="application/json",
+        mimetype="app/json",
     )
 
 
-@application.route("/projects/<project_uuid>", methods=["DELETE"])
-@application.route("/projects/<project_uuid>/owner/<user_name>", methods=["DELETE"])
+@app.route("/projects/<project_uuid>", methods=["DELETE"])
+@app.route("/projects/<project_uuid>/owner/<user_name>", methods=["DELETE"])
 # @auth.login_required
 def delete_moc_project(project_uuid, user_name=None):
     (token, openshift_url) = get_token_and_url()
@@ -204,25 +197,25 @@ def delete_moc_project(project_uuid, user_name=None):
             return Response(
                 response=json.dumps({"msg": "project deleted (" + project_uuid + ")"}),
                 status=200,
-                mimetype="application/json",
+                mimetype="app/json",
             )
         return Response(
             response=json.dumps(
                 {"msg": "project unabled to be deleted (" + project_uuid + ")"}
             ),
             status=400,
-            mimetype="application/json",
+            mimetype="app/json",
         )
     return Response(
         response=json.dumps(
             {"msg": "unable to delete, project does not exist(" + project_uuid + ")"}
         ),
         status=400,
-        mimetype="application/json",
+        mimetype="app/json",
     )
 
 
-@application.route("/users/<user_name>", methods=["GET"])
+@app.route("/users/<user_name>", methods=["GET"])
 # @auth.login_required
 def get_moc_user(user_name, full_name=None, id_provider="sso_auth", id_user=None):
     (token, openshift_url) = get_token_and_url()
@@ -231,16 +224,16 @@ def get_moc_user(user_name, full_name=None, id_provider="sso_auth", id_user=None
         return Response(
             response=json.dumps({"msg": "user (" + user_name + ") exists"}),
             status=200,
-            mimetype="application/json",
+            mimetype="app/json",
         )
     return Response(
         response=json.dumps({"msg": "user (" + user_name + ") does not exist"}),
         status=400,
-        mimetype="application/json",
+        mimetype="app/json",
     )
 
 
-@application.route("/users/<user_name>", methods=["PUT"])
+@app.route("/users/<user_name>", methods=["PUT"])
 # @auth.login_required
 def create_moc_user(user_name, full_name=None, id_provider="sso_auth", id_user=None):
     (token, openshift_url) = get_token_and_url()
@@ -256,7 +249,7 @@ def create_moc_user(user_name, full_name=None, id_provider="sso_auth", id_user=N
                     {"msg": "unable to create openshift user (" + user_name + ") 1"}
                 ),
                 status=400,
-                mimetype="application/json",
+                mimetype="app/json",
             )
     else:
         user_exists = user_exists | 0x01
@@ -273,7 +266,7 @@ def create_moc_user(user_name, full_name=None, id_provider="sso_auth", id_user=N
                     {"msg": "unable to create openshift identity (" + id_provider + ")"}
                 ),
                 status=400,
-                mimetype="application/json",
+                mimetype="app/json",
             )
     else:
         user_exists = user_exists | 0x02
@@ -294,7 +287,7 @@ def create_moc_user(user_name, full_name=None, id_provider="sso_auth", id_user=N
                     }
                 ),
                 status=400,
-                mimetype="application/json",
+                mimetype="app/json",
             )
     else:
         user_exists = user_exists | 0x04
@@ -303,16 +296,16 @@ def create_moc_user(user_name, full_name=None, id_provider="sso_auth", id_user=N
         return Response(
             response=json.dumps({"msg": "user currently exists (" + user_name + ")"}),
             status=200,
-            mimetype="application/json",
+            mimetype="app/json",
         )
     return Response(
         response=json.dumps({"msg": "user created (" + user_name + ")"}),
         status=200,
-        mimetype="application/json",
+        mimetype="app/json",
     )
 
 
-@application.route("/users/<user_name>", methods=["DELETE"])
+@app.route("/users/<user_name>", methods=["DELETE"])
 # @auth.login_required
 def delete_moc_user(user_name, full_name=None, id_provider="sso_auth", id_user=None):
     (token, openshift_url) = get_token_and_url()
@@ -327,7 +320,7 @@ def delete_moc_user(user_name, full_name=None, id_provider="sso_auth", id_user=N
                     {"msg": "unable to delete User (" + user_name + ") 1"}
                 ),
                 status=400,
-                mimetype="application/json",
+                mimetype="app/json",
             )
     else:
         user_does_not_exist = 0x01
@@ -343,7 +336,7 @@ def delete_moc_user(user_name, full_name=None, id_provider="sso_auth", id_user=N
                     {"msg": "unable to delete identity (" + id_provider + ")"}
                 ),
                 status=400,
-                mimetype="application/json",
+                mimetype="app/json",
             )
     else:
         user_does_not_exist = user_does_not_exist | 0x02
@@ -354,14 +347,14 @@ def delete_moc_user(user_name, full_name=None, id_provider="sso_auth", id_user=N
                 {"msg": "user does not currently exist (" + user_name + ")"}
             ),
             status=200,
-            mimetype="application/json",
+            mimetype="app/json",
         )
     return Response(
         response=json.dumps({"msg": "user deleted (" + user_name + ")"}),
         status=200,
-        mimetype="application/json",
+        mimetype="app/json",
     )
 
 
 if __name__ == "__main__":
-    application.run()
+    app.run()

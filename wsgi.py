@@ -25,6 +25,9 @@ with open(f'{serviceaccount}/token') as fd:
     token = fd.read()
 
 openshift_url = 'kubernetes.default.svc'
+openshift_api = ApiWrapper(f'https://{openshift_url}',
+                           f'{serviceaccount}/ca.crt',
+                           token)
 
 if __name__ != "__main__":
     gunicorn_logger = logging.getLogger("gunicorn.error")

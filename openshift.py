@@ -37,7 +37,7 @@ class openshift:
     def cnvt_project_name(self, project_name):
         suggested_project_name = re.sub("^[^A-Za-z0-9]+", "", project_name)
         suggested_project_name = re.sub("[^A-Za-z0-9]+$", "", suggested_project_name)
-        suggested_project_name = re.sub("[^A-Za-z0-9\-]+", "-", suggested_project_name)
+        suggested_project_name = re.sub("[^A-Za-z0-9-]+", "-", suggested_project_name)
         return suggested_project_name
 
     def get_request(self, url, debug=False):

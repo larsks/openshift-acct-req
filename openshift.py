@@ -114,14 +114,14 @@ class openshift:
         return False
 
     def get_all_moc_rolebindings(self, user, project_name):
-        rolebindings = []
+        role_bindings = []
         for role in ["admin", "member", "view"]:
             if self.user_rolebinding_exists(user, project_name, role):
-                role_bindings.push(role)
-        if role_bindings.size() > 0:
+                role_bindings.append(role)
+        if role_bindings:
             return Response(
                 response=json.dumps(
-                    {"msg": "role found", "rolebindings": rolebindings}
+                    {"msg": "role found", "rolebindings": role_bindings}
                 ),
                 status=200,
                 mimetype="application/json",

@@ -26,7 +26,7 @@ if __name__ != "__main__":
 def get_openshift():
     version = os.environ["OPENSHIFT_VERSION"]
     url = os.environ["OPENSHIFT_URL"]
-    if version == 3:
+    if version == '3':
         shift = openshift_3_x(url, version, application.logger)
         application.logger.info("using Openshift ver 3")
     else:

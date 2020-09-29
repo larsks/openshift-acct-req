@@ -12,7 +12,7 @@ from flask_httpauth import HTTPBasicAuth
 
 import sys
 
-from openshift import *
+from moc_acct_mgt.openshift import *
 
 application = Flask(__name__)
 auth = HTTPBasicAuth()

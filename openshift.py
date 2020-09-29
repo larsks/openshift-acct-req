@@ -115,7 +115,7 @@ class openshift:
 
     def get_all_moc_rolebindings(self, user, project_name):
         role_bindings = []
-        for role in ["admin", "member", "view"]:
+        for role in ["admin", "member", "reader"]:
             if self.user_rolebinding_exists(user, project_name, role):
                 role_bindings.append(role)
         if role_bindings:

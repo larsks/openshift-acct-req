@@ -42,7 +42,7 @@ def get_openshift():
 def verify_password(username, password):
     with open("/app/auth/users", "r") as f:
         user_str = f.read()
-    if(user_str is not None and user_str.len() > 0):
+    if user_str:
         user = user_str.split(" ", 1)
         if username == user[0] and password == user[1]:
             return username

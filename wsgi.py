@@ -350,5 +350,5 @@ def delete_moc_user(user_name):
     )
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     application.run()
